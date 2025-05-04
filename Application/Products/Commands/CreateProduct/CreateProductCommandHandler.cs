@@ -1,16 +1,15 @@
 ﻿// Application/Products/Commands/CreateProduct/CreateProductCommandHandler.cs
 using Application.DTOs;
 using Application.Interfaces;
+using Application.Common;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Application.Products.Commands.CreateProduct
 {
-    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, ProductDto>
+    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, OperationResult<ProductDto>>
     {
         private readonly IProductRepository _repo;
         private readonly IMapper _mapper;
@@ -21,13 +20,13 @@ namespace Application.Products.Commands.CreateProduct
             _mapper = mapper;
         }
 
-        public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<ProductDto>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             // Check if a product with the same name and category already exists
             var existingProduct = await _repo.GetByNameAndCategoryAsync(request.Name, request.CategoryId);
             if (existingProduct != null)
             {
-                throw new Exception("Product with the same name and category already exists.");
+                return OperationResult<ProductDto>.FailureResult("Product with the same name and category already exists.");
             }
 
             var product = new Product
@@ -41,7 +40,8 @@ namespace Application.Products.Commands.CreateProduct
             await _repo.AddAsync(product);
             await _repo.SaveChangesAsync();
 
-            return _mapper.Map<ProductDto>(product);
+            var productDto = _mapper.Map<ProductDto>(product);
+            return OperationResult<ProductDto>.SuccessResult(productDto);
         }
     }
 }

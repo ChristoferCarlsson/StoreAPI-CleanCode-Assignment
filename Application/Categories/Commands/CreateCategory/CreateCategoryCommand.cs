@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Application.Categories.Commands.CreateCategory
 {
-    public record CreateCategoryCommand(string Name) : IRequest<CategoryDto>;
+    public record CreateCategoryCommand(string Name) : IRequest<OperationResult<CategoryDto>>;
 }

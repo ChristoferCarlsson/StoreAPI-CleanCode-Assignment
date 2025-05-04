@@ -1,15 +1,11 @@
 ﻿using Domain.Entities;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace Application.Interfaces
+public interface ICategoryRepository
 {
-    public interface ICategoryRepository
-    {
-        Task AddAsync(Category category);
-        Task<List<Category>> GetAllAsync();
-        Task<Category?> GetByIdAsync(int id);
-        Task SaveChangesAsync();
-        void Delete(Category category);
-    }
+    Task AddAsync(Category category);
+    Task<List<Category>> GetAllAsync();
+    Task<Category?> GetByIdAsync(int id);
+    Task<Category?> GetByNameAsync(string name);
+    Task SaveChangesAsync();
+    void Delete(Category category);
 }

@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Categories.Queries.GetAllCategories
 {
-    public class GetAllCategoriesQueryHandler : IRequestHandler<GetAllCategoriesQuery, List<CategoryDto>>
+    public class GetAllCategoriesQueryHandler : IRequestHandler<GetAllCategoriesQuery, OperationResult<List<CategoryDto>>>
     {
         private readonly ICategoryRepository _repo;
         private readonly IMapper _mapper;
@@ -16,10 +16,20 @@ namespace Application.Categories.Queries.GetAllCategories
             _mapper = mapper;
         }
 
-        public async Task<List<CategoryDto>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<List<CategoryDto>>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
         {
+            // Fetch the categories from the repository
             var categories = await _repo.GetAllAsync();
-            return _mapper.Map<List<CategoryDto>>(categories);
+
+            // If categories are not found, return a failure result
+            if (categories == null || categories.Count == 0)
+            {
+                return OperationResult<List<CategoryDto>>.FailureResult("No categories found.");
+            }
+
+            // Map to DTOs and return success result with data
+            var categoryDtos = _mapper.Map<List<CategoryDto>>(categories);
+            return OperationResult<List<CategoryDto>>.SuccessResult(categoryDtos);
         }
     }
 }

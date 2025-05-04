@@ -2,5 +2,5 @@
 
 namespace Application.Categories.Commands.DeleteCategory
 {
-    public record DeleteCategoryCommand(int Id) : IRequest<bool>;
+    public record DeleteCategoryCommand(int Id) : IRequest<OperationResult<bool>>;
 }

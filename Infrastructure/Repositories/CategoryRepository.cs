@@ -31,12 +31,17 @@ namespace Infrastructure.Repositories
             return await _context.Categories.FindAsync(id);
         }
 
+        public async Task<Category?> GetByNameAsync(string name)
+        {
+            return await _context.Categories
+                .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower());
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
         }
 
-        // Add the Delete method to remove categories
         public void Delete(Category category)
         {
             _context.Categories.Remove(category);  // Removes the category from the context

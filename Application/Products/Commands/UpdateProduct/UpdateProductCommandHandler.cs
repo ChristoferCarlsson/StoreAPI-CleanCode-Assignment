@@ -1,36 +1,41 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using Application.Common; 
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
 
-namespace Application.Products.Commands.UpdateProduct;
-
-public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, ProductDto>
+namespace Application.Products.Commands.UpdateProduct
 {
-    private readonly IProductRepository _repo;
-    private readonly IMapper _mapper;
-
-    public UpdateProductCommandHandler(IProductRepository repo, IMapper mapper)
+    public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, OperationResult<ProductDto>>
     {
-        _repo = repo;
-        _mapper = mapper;
-    }
+        private readonly IProductRepository _repo;
+        private readonly IMapper _mapper;
 
-    public async Task<ProductDto> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
-    {
-        var product = await _repo.GetByIdAsync(request.Id);
-        if (product == null)
-            throw new KeyNotFoundException($"Product with ID {request.Id} not found.");
+        public UpdateProductCommandHandler(IProductRepository repo, IMapper mapper)
+        {
+            _repo = repo;
+            _mapper = mapper;
+        }
 
-        product.Name = request.Name;
-        product.Price = request.Price;
-        product.Stock = request.Stock;
-        product.CategoryId = request.CategoryId;
+        public async Task<OperationResult<ProductDto>> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+        {
+            var product = await _repo.GetByIdAsync(request.Id);
+            if (product == null)
+            {
+                return OperationResult<ProductDto>.FailureResult($"Product with ID {request.Id} not found.");
+            }
 
-        _repo.Update(product);
-        await _repo.SaveChangesAsync();
+            product.Name = request.Name;
+            product.Price = request.Price;
+            product.Stock = request.Stock;
+            product.CategoryId = request.CategoryId;
 
-        return _mapper.Map<ProductDto>(product);
+            _repo.Update(product);
+            await _repo.SaveChangesAsync();
+
+            var productDto = _mapper.Map<ProductDto>(product);
+            return OperationResult<ProductDto>.SuccessResult(productDto);
+        }
     }
 }

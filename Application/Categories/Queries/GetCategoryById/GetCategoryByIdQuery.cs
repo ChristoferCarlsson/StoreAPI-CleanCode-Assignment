@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Application.Categories.Queries.GetCategoryById
 {
-    public class GetCategoryByIdQuery : IRequest<CategoryDto>
+    public class GetCategoryByIdQuery : IRequest<OperationResult<CategoryDto>>
     {
         public int Id { get; set; }
 

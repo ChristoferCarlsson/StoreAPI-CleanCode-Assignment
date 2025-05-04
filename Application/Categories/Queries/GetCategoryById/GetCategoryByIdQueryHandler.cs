@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Categories.Queries.GetCategoryById
 {
-    public class GetCategoryByIdQueryHandler : IRequestHandler<GetCategoryByIdQuery, CategoryDto>
+    public class GetCategoryByIdQueryHandler : IRequestHandler<GetCategoryByIdQuery, OperationResult<CategoryDto>>
     {
         private readonly ICategoryRepository _repo;
         private readonly IMapper _mapper;
@@ -16,15 +16,19 @@ namespace Application.Categories.Queries.GetCategoryById
             _mapper = mapper;
         }
 
-        public async Task<CategoryDto> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<CategoryDto>> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
         {
             var category = await _repo.GetByIdAsync(request.Id);
+
+            // If category not found, return failure result
             if (category == null)
             {
-                return null; 
+                return OperationResult<CategoryDto>.FailureResult($"Category with ID {request.Id} not found.");
             }
 
-            return _mapper.Map<CategoryDto>(category);
+            // Map to DTO and return success result
+            var categoryDto = _mapper.Map<CategoryDto>(category);
+            return OperationResult<CategoryDto>.SuccessResult(categoryDto);
         }
     }
 }

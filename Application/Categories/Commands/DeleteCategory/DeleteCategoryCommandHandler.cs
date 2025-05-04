@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Application.Categories.Commands.DeleteCategory
 {
-    public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand, bool>
+    public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand, OperationResult<bool>>
     {
         private readonly ICategoryRepository _categoryRepository;
 
@@ -12,17 +12,19 @@ namespace Application.Categories.Commands.DeleteCategory
             _categoryRepository = categoryRepository;
         }
 
-        public async Task<bool> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<bool>> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
             var category = await _categoryRepository.GetByIdAsync(request.Id);
 
             if (category == null)
-                return false; // Category not found
+            {
+                return OperationResult<bool>.FailureResult("Category not found.");
+            }
 
             _categoryRepository.Delete(category);
             await _categoryRepository.SaveChangesAsync();
 
-            return true; // Deletion successful
+            return OperationResult<bool>.SuccessResult(true); // Deletion successful
         }
     }
 }

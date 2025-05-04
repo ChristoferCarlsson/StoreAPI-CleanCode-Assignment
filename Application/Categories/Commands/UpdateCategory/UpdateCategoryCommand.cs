@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Application.Categories.Commands.UpdateCategory
 {
-    public class UpdateCategoryCommand : IRequest<CategoryDto>
+    public class UpdateCategoryCommand : IRequest<OperationResult<CategoryDto>>
     {
         public int Id { get; set; }
         public string Name { get; set; }
