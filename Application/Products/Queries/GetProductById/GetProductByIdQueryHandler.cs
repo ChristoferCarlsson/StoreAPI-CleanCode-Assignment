@@ -2,7 +2,7 @@
 using Application.Interfaces;
 using AutoMapper;
 using MediatR;
-using Application.Common; // <-- Make sure this namespace contains OperationResult
+using Application.Common;
 
 namespace Application.Products.Queries.GetProductById
 {
