@@ -25,15 +25,14 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateProductCommand command)
     {
-        try
+        var result = await _mediator.Send(command);
+
+        if (!result.Success)
         {
-            var result = await _mediator.Send(command);
-            return CreatedAtAction(nameof(Create), new { id = result.Id }, result); // Return the created product.
+            return BadRequest(result.Message); // If the operation failed, return BadRequest with the message.
         }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message); // Return error if the product already exists.
-        }
+
+        return CreatedAtAction(nameof(Create), new { id = result.Data.Id }, result.Data); // Return created product.
     }
 
     [HttpPut("{id}")]
@@ -43,7 +42,13 @@ public class ProductsController : ControllerBase
             return BadRequest("Product ID mismatch.");
 
         var result = await _mediator.Send(command);
-        return Ok(result);
+
+        if (!result.Success)
+        {
+            return NotFound(result.Message);  // If the operation failed (product not found), return 404
+        }
+
+        return Ok(result.Data);  // Return updated product DTO if successful
     }
 
     [Authorize]

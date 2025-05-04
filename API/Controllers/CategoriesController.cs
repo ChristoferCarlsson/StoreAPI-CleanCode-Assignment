@@ -24,21 +24,46 @@ namespace API.Controllers
         public async Task<IActionResult> Create([FromBody] CreateCategoryCommand command)
         {
             var result = await _mediator.Send(command);
-            return Ok(result);
+
+            // Check if the result was successful
+            if (result.Success)
+            {
+                return CreatedAtAction(nameof(Create), new { id = result.Data.Id }, result.Data); // Return the created category
+            }
+
+            // If there was an error, return the failure message
+            return BadRequest(result.Message);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var result = await _mediator.Send(new GetAllCategoriesQuery());
-            return Ok(result);
+
+            // Check if the result is not null and return an appropriate response.
+            if (result.Success)
+            {
+                return Ok(result);  // Return the result with a 200 OK status.
+            }
+            else
+            {
+                return NotFound(result.Message);  // Return a 404 Not Found with the failure message.
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _mediator.Send(new GetCategoryByIdQuery(id));
-            return Ok(result);
+
+            if (result.Success)
+            {
+                return Ok(result);  // Return the result with a 200 OK status.
+            }
+            else
+            {
+                return NotFound(result.Message);  // Return 404 Not Found with the failure message.
+            }
         }
 
         [HttpPut("{id}")]
@@ -50,15 +75,33 @@ namespace API.Controllers
             }
 
             var result = await _mediator.Send(command);
-            return Ok(result);
+
+            if (result.Success)
+            {
+                return Ok(result);  // Return the result with a 200 OK status.
+            }
+            else
+            {
+                return NotFound(result.Message);  // Return 404 Not Found with the failure message.
+            }
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var command = new DeleteCategoryCommand(id);
-            await _mediator.Send(command);
-            return NoContent();  // Successfully deleted, return 204 No Content
+            var result = await _mediator.Send(command);
+
+            if (result.Success)
+            {
+                return NoContent();  // Successfully deleted, return 204 No Content.
+            }
+            else
+            {
+                return NotFound(result.Message);  // Return 404 Not Found if deletion fails.
+            }
         }
+
     }
 }

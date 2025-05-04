@@ -6,7 +6,7 @@ using Domain.Entities;
 
 namespace Application.Categories.Commands.UpdateCategory
 {
-    public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, CategoryDto>
+    public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, OperationResult<CategoryDto>>
     {
         private readonly ICategoryRepository _repo;
         private readonly IMapper _mapper;
@@ -17,12 +17,12 @@ namespace Application.Categories.Commands.UpdateCategory
             _mapper = mapper;
         }
 
-        public async Task<CategoryDto> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<CategoryDto>> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
             var category = await _repo.GetByIdAsync(request.Id);
             if (category == null)
             {
-                return null;
+                return OperationResult<CategoryDto>.FailureResult($"Category with ID {request.Id} not found.");
             }
 
             // Update category properties
@@ -32,7 +32,8 @@ namespace Application.Categories.Commands.UpdateCategory
             await _repo.SaveChangesAsync();
 
             // Map the updated entity to a DTO
-            return _mapper.Map<CategoryDto>(category);
+            var updatedCategoryDto = _mapper.Map<CategoryDto>(category);
+            return OperationResult<CategoryDto>.SuccessResult(updatedCategoryDto);
         }
     }
 }

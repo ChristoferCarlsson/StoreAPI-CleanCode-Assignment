@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Application.DTOs;
+﻿using Application.DTOs;
 using MediatR;
 
-namespace Application.Products.Commands.CreateProduct;
-
-public record CreateProductCommand(string Name, decimal Price, int Stock, int CategoryId)
-    : IRequest<ProductDto>;
+namespace Application.Products.Commands.CreateProduct
+{
+    public record CreateProductCommand(string Name, decimal Price, int Stock, int CategoryId)
+        : IRequest<OperationResult<ProductDto>>; 
+}
